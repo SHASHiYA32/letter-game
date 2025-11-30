@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Letter Category Game</title>
+  <script src="/socket.io/socket.io.js"></script>
+  <script defer src="client.js"></script>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; }
+    .hidden { display: none; }
+    table, th, td { border: 1px solid #ccc; border-collapse: collapse; padding: 6px; }
+  </style>
+</head>
+<body>
+  <h1>Letter Category Game</h1>
+
+  <div id="auth">
+    <input id="playerName" placeholder="Your name" />
+    <button id="createRoomBtn">Create Room</button>
+    <input id="joinRoomCode" placeholder="Room code" />
+    <button id="joinRoomBtn">Join Room</button>
+  </div>
+
+  <div id="room" class="hidden">
+    <p>Room code: <span id="roomCodeDisplay"></span></p>
+    <p>You are: <span id="playerNameDisplay"></span> <span id="hostTag"></span></p>
+
+    <h3>Players</h3>
+    <ul id="playersList"></ul>
+
+    <button id="startGameBtn" class="hidden">Start Game</button>
+
+    <hr />
+
+    <div id="gameArea" class="hidden">
+      <p><strong>Current picker:</strong> <span id="pickerName"></span></p>
+      <p><strong>Current letter:</strong> <span id="currentLetter"></span></p>
+
+      <div id="pickerControls" class="hidden">
+        <input id="letterInput" maxlength="1" placeholder="Enter letter" />
+        <button id="chooseLetterBtn">Choose Letter</button>
+      </div>
+
+      <div id="answerArea" class="hidden">
+        <h3>Your Answers</h3>
+        <table>
+          <tr>
+            <th>Women</th>
+            <th>Men</th>
+            <th>Flower</th>
+            <th>Fruit</th>
+            <th>Animal</th>
+            <th>City</th>
+          </tr>
+          <tr>
+            <td><input id="ansWomen" /></td>
+            <td><input id="ansMen" /></td>
+            <td><input id="ansFlower" /></td>
+            <td><input id="ansFruit" /></td>
+            <td><input id="ansAnimal" /></td>
+            <td><input id="ansCity" /></td>
+          </tr>
+        </table>
+        <button id="submitAnswersBtn">Submit Answers</button>
+      </div>
+
+      <div id="resultsArea" class="hidden">
+        <h3>Round Results</h3>
+        <pre id="resultsText"></pre>
+        <button id="nextRoundBtn">Next Round</button>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
