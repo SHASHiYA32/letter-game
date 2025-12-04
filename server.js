@@ -8,7 +8,7 @@ const io = new Server(server);
 
 app.use(express.static("public"));
 
-const PORT = 3000;
+// const PORT = 3000;
 
 // Rooms structure: { roomCode: { players: [], hostId, pickerIndex, currentLetter, answers, state } }
 const rooms = {};
@@ -198,6 +198,11 @@ function calculateScores(room) {
   return results;
 }
 
+// server.listen(PORT, () => {
+//   console.log(`Server running on http://localhost:${PORT}`);
+// });
+
+const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
+  console.log("Server running on port", PORT);
 });
