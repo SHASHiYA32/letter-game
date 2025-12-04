@@ -1,0 +1,956 @@
+<!doctype html>
+<html lang="en">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Letter Category Game</title>
+  <script src="/_sdk/element_sdk.js"></script>
+  <style>
+    body {
+      box-sizing: border-box;
+    }
+    
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    /* Animated background pattern */
+    body::before {
+      content: '';
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      background-image: 
+        radial-gradient(circle at 20% 50%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
+        radial-gradient(circle at 80% 80%, rgba(255, 255, 255, 0.08) 0%, transparent 50%),
+        radial-gradient(circle at 40% 20%, rgba(255, 255, 255, 0.06) 0%, transparent 50%);
+      animation: float 20s ease-in-out infinite;
+      pointer-events: none;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-20px); }
+    }
+
+    .main-container {
+      width: 100%;
+      min-height: 100%;
+      padding: 2rem 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Liquid Glass Effect */
+    .glass-card {
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(20px);
+      border-radius: 24px;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+      padding: 2.5rem;
+      width: 100%;
+      max-width: 500px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .glass-card::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+      animation: shimmer 6s linear infinite;
+      pointer-events: none;
+    }
+
+    @keyframes shimmer {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .game-room-card {
+      max-width: 900px;
+    }
+
+    h1 {
+      color: white;
+      font-size: 2rem;
+      text-align: center;
+      margin-bottom: 0.5rem;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+      position: relative;
+      z-index: 1;
+    }
+
+    .subtitle {
+      color: rgba(255, 255, 255, 0.9);
+      text-align: center;
+      margin-bottom: 2rem;
+      font-size: 0.95rem;
+      position: relative;
+      z-index: 1;
+    }
+
+    .room-code-display {
+      background: rgba(255, 255, 255, 0.2);
+      padding: 1rem;
+      border-radius: 12px;
+      text-align: center;
+      margin-bottom: 1.5rem;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      position: relative;
+      z-index: 1;
+    }
+
+    .room-code-display strong {
+      color: white;
+      font-size: 1.5rem;
+      letter-spacing: 2px;
+      text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+    }
+
+    .input-group {
+      margin-bottom: 1.5rem;
+      position: relative;
+      z-index: 1;
+    }
+
+    label {
+      display: block;
+      color: white;
+      font-weight: 500;
+      margin-bottom: 0.5rem;
+      font-size: 0.95rem;
+    }
+
+    input[type="text"] {
+      width: 100%;
+      padding: 0.875rem 1rem;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      border-radius: 12px;
+      font-size: 1rem;
+      background: rgba(255, 255, 255, 0.9);
+      color: #333;
+      transition: all 0.3s ease;
+    }
+
+    input[type="text"]:focus {
+      outline: none;
+      border-color: rgba(255, 255, 255, 0.8);
+      background: white;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    input[type="text"]::placeholder {
+      color: #999;
+    }
+
+    .button-group {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 1rem;
+      position: relative;
+      z-index: 1;
+    }
+
+    button {
+      flex: 1;
+      padding: 1rem;
+      border: none;
+      border-radius: 12px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      color: white;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+    }
+
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.25);
+      border: 2px solid rgba(255, 255, 255, 0.5);
+    }
+
+    .btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.35);
+      transform: translateY(-2px);
+    }
+
+    .btn-submit {
+      width: 100%;
+      background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+      box-shadow: 0 4px 15px rgba(245, 87, 108, 0.4);
+    }
+
+    .btn-submit:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(245, 87, 108, 0.6);
+    }
+
+    .instructions {
+      color: rgba(255, 255, 255, 0.85);
+      font-size: 0.85rem;
+      text-align: center;
+      line-height: 1.6;
+      position: relative;
+      z-index: 1;
+    }
+
+    .instructions strong {
+      color: white;
+    }
+
+    .players-section {
+      background: rgba(255, 255, 255, 0.1);
+      padding: 1.5rem;
+      border-radius: 16px;
+      margin-bottom: 1.5rem;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      position: relative;
+      z-index: 1;
+    }
+
+    .section-title {
+      color: white;
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .player-item {
+      background: rgba(255, 255, 255, 0.15);
+      padding: 0.75rem 1rem;
+      border-radius: 10px;
+      margin-bottom: 0.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color: white;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .player-name {
+      font-weight: 500;
+    }
+
+    .player-score {
+      background: rgba(255, 255, 255, 0.25);
+      padding: 0.25rem 0.75rem;
+      border-radius: 20px;
+      font-size: 0.9rem;
+      font-weight: 600;
+    }
+
+    .picker-section {
+      background: rgba(255, 255, 255, 0.2);
+      padding: 1.5rem;
+      border-radius: 16px;
+      margin-bottom: 1.5rem;
+      border: 2px solid rgba(255, 255, 255, 0.4);
+      position: relative;
+      z-index: 1;
+    }
+
+    .current-picker {
+      color: white;
+      text-align: center;
+      margin-bottom: 1rem;
+      font-size: 1rem;
+    }
+
+    .current-picker strong {
+      font-size: 1.2rem;
+      color: #ffd700;
+      text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+    }
+
+    .answers-table {
+      width: 100%;
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 12px;
+      overflow: hidden;
+      margin-bottom: 1.5rem;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+      position: relative;
+      z-index: 1;
+    }
+
+    .answers-table table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .answers-table th {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 1rem 0.75rem;
+      font-weight: 600;
+      text-align: center;
+      font-size: 0.9rem;
+    }
+
+    .answers-table td {
+      padding: 0.5rem;
+      text-align: center;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    }
+
+    .answers-table input {
+      width: 100%;
+      padding: 0.5rem;
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
+      text-align: center;
+      font-size: 0.9rem;
+      transition: all 0.3s ease;
+    }
+
+    .answers-table input:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    .answers-table tr:nth-child(even) {
+      background: rgba(102, 126, 234, 0.03);
+    }
+
+    .category-icon {
+      font-size: 1.2rem;
+      margin-right: 0.25rem;
+    }
+
+    .user-info {
+      background: rgba(255, 255, 255, 0.1);
+      padding: 0.75rem 1rem;
+      border-radius: 10px;
+      margin-bottom: 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      position: relative;
+      z-index: 1;
+    }
+
+    .user-info span {
+      color: white;
+      font-weight: 500;
+    }
+
+    .role-badge {
+      background: rgba(255, 215, 0, 0.3);
+      color: #ffd700;
+      padding: 0.25rem 0.75rem;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      border: 1px solid rgba(255, 215, 0, 0.5);
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .letter-display {
+      margin-top: 1.5rem;
+      text-align: center;
+      padding: 1.5rem;
+      background: rgba(255, 255, 255, 0.15);
+      border-radius: 12px;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+    }
+
+    .chosen-letter {
+      font-size: 4rem;
+      font-weight: 700;
+      color: #ffd700;
+      text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.3);
+      margin-bottom: 1rem;
+      animation: pulse 1s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+    }
+
+    .timer-display {
+      font-size: 2rem;
+      font-weight: 600;
+      color: white;
+      text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
+    }
+
+    .timer-display.warning {
+      color: #ff4444;
+      animation: blink 0.5s ease-in-out infinite;
+    }
+
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    .answers-table.disabled {
+      opacity: 0.6;
+      pointer-events: none;
+    }
+
+    @media (max-width: 768px) {
+      .glass-card {
+        padding: 2rem 1.5rem;
+      }
+
+      h1 {
+        font-size: 1.75rem;
+      }
+
+      .button-group {
+        flex-direction: column;
+      }
+
+      .answers-table th,
+      .answers-table td {
+        padding: 0.75rem 0.5rem;
+        font-size: 0.85rem;
+      }
+
+      .answers-table input {
+        font-size: 0.85rem;
+        padding: 0.4rem;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .main-container {
+        padding: 1rem 0.5rem;
+      }
+
+      .glass-card {
+        padding: 1.5rem 1rem;
+        border-radius: 16px;
+      }
+
+      h1 {
+        font-size: 1.5rem;
+      }
+
+      .answers-table th {
+        font-size: 0.75rem;
+        padding: 0.75rem 0.25rem;
+      }
+
+      .answers-table input {
+        font-size: 0.8rem;
+      }
+
+      .category-icon {
+        font-size: 1rem;
+      }
+    }
+  </style>
+  <style>@view-transition { navigation: auto; }</style>
+  <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
+  <script src="https://cdn.tailwindcss.com" type="text/javascript"></script>
+ </head>
+ <body>
+  <div class="main-container"><!-- Login / Room Page -->
+   <div id="loginPage" class="glass-card">
+    <h1 id="gameTitle">Letter Category Game</h1>
+    <p class="subtitle" id="loginInstructions">Enter your details to start playing</p>
+    <div class="input-group"><label for="playerName">Enter Name</label> <input type="text" id="playerName" placeholder="Your name">
+    </div>
+    <div class="input-group"><label for="roomCode">Enter Room Code (to join room)</label> <input type="text" id="roomCode" placeholder="e.g., 395388">
+    </div>
+    <div class="button-group"><button class="btn-primary" id="createRoomBtn">Create Room</button> <button class="btn-secondary" id="joinRoomBtn">Join Room</button>
+    </div>
+    <div class="instructions"><strong>Create Room:</strong> Start a new game and invite friends<br><strong>Join Room:</strong> Enter the room code to join an existing game
+    </div>
+   </div><!-- Game Room Interface -->
+   <div id="gameRoom" class="glass-card game-room-card hidden">
+    <h1>Letter Category Game</h1>
+    <div class="room-code-display"><strong id="displayRoomCode">Room: 395388</strong>
+    </div>
+    <div class="user-info"><span id="currentUserName">shashi</span> <span class="role-badge" id="userRole">Host</span>
+    </div>
+    <div class="players-section">
+     <div class="section-title">
+      👥 Players
+     </div>
+     <div id="playersList">
+      <div class="player-item"><span class="player-name">shashi</span> <span class="player-score">Score: 0</span>
+      </div>
+      <div class="player-item"><span class="player-name">player 2</span> <span class="player-score">Score: 0</span>
+      </div>
+     </div>
+    </div>
+    <div class="picker-section">
+     <div class="section-title">
+      🎯 Letter Selection
+     </div>
+     <div class="current-picker">
+      Current picker: <strong id="pickerName">shashi</strong>
+     </div>
+     <div class="input-group" id="letterInputGroup"><label for="letterInput">Enter Letter</label> <input type="text" id="letterInput" placeholder="Type a letter (A-Z)" maxlength="1">
+     </div><button class="btn-primary" id="chooseLetterBtn">Choose Letter</button> <button class="btn-primary hidden" id="startGameBtn" style="margin-top: 1rem;">Start Game</button>
+     <div class="letter-display hidden" id="letterDisplay">
+      <div class="chosen-letter" id="chosenLetter">
+       A
+      </div>
+      <div class="timer-display" id="timerDisplay">
+       ⏱️ 5:00
+      </div>
+     </div>
+    </div>
+    <div class="answers-table">
+     <table>
+      <thead>
+       <tr>
+        <th><span class="category-icon">👩</span>Women</th>
+        <th><span class="category-icon">👨</span>Men</th>
+        <th><span class="category-icon">🌸</span>Flower</th>
+        <th><span class="category-icon">🍎</span>Fruit</th>
+        <th><span class="category-icon">🐘</span>Animal</th>
+        <th><span class="category-icon">🏙️</span>City</th>
+       </tr>
+      </thead>
+      <tbody>
+       <tr>
+        <td><input type="text" id="women" placeholder=""></td>
+        <td><input type="text" id="men" placeholder=""></td>
+        <td><input type="text" id="flower" placeholder=""></td>
+        <td><input type="text" id="fruit" placeholder=""></td>
+        <td><input type="text" id="animal" placeholder=""></td>
+        <td><input type="text" id="city" placeholder=""></td>
+       </tr>
+      </tbody>
+     </table>
+    </div><button class="btn-submit" id="submitAnswersBtn">Submit Answers</button>
+   </div>
+  </div>
+  <script>
+    const defaultConfig = {
+      background_color: "#667eea",
+      surface_color: "#ffffff",
+      text_color: "#333333",
+      primary_action_color: "#667eea",
+      secondary_action_color: "#f5576c",
+      font_family: "Segoe UI",
+      font_size: 16,
+      game_title: "Letter Category Game",
+      login_instructions: "Enter your details to start playing",
+      create_room_text: "Create Room",
+      join_room_text: "Join Room",
+      submit_answers_text: "Submit Answers"
+    };
+
+    async function onConfigChange(config) {
+      const customFont = config.font_family || defaultConfig.font_family;
+      const baseFontStack = 'Tahoma, Geneva, Verdana, sans-serif';
+      const baseSize = config.font_size || defaultConfig.font_size;
+      const backgroundColor = config.background_color || defaultConfig.background_color;
+      const surfaceColor = config.surface_color || defaultConfig.surface_color;
+      const textColor = config.text_color || defaultConfig.text_color;
+      const primaryActionColor = config.primary_action_color || defaultConfig.primary_action_color;
+      const secondaryActionColor = config.secondary_action_color || defaultConfig.secondary_action_color;
+
+      document.body.style.fontFamily = `${customFont}, ${baseFontStack}`;
+      document.body.style.background = `linear-gradient(135deg, ${backgroundColor} 0%, ${backgroundColor}dd 100%)`;
+
+      const allHeadings = document.querySelectorAll('h1');
+      allHeadings.forEach(h => {
+        h.style.fontSize = `${baseSize * 2}px`;
+        h.style.fontFamily = `${customFont}, ${baseFontStack}`;
+      });
+
+      const subtitles = document.querySelectorAll('.subtitle, .instructions');
+      subtitles.forEach(s => {
+        s.style.fontSize = `${baseSize * 0.95}px`;
+        s.style.fontFamily = `${customFont}, ${baseFontStack}`;
+      });
+
+      const labels = document.querySelectorAll('label, .section-title, .current-picker');
+      labels.forEach(l => {
+        l.style.fontSize = `${baseSize}px`;
+        l.style.fontFamily = `${customFont}, ${baseFontStack}`;
+      });
+
+      const inputs = document.querySelectorAll('input[type="text"]');
+      inputs.forEach(inp => {
+        inp.style.fontSize = `${baseSize}px`;
+        inp.style.fontFamily = `${customFont}, ${baseFontStack}`;
+        inp.style.backgroundColor = surfaceColor;
+        inp.style.color = textColor;
+      });
+
+      const buttons = document.querySelectorAll('button');
+      buttons.forEach(btn => {
+        btn.style.fontSize = `${baseSize}px`;
+        btn.style.fontFamily = `${customFont}, ${baseFontStack}`;
+      });
+
+      const primaryButtons = document.querySelectorAll('.btn-primary, #chooseLetterBtn');
+      primaryButtons.forEach(btn => {
+        btn.style.background = `linear-gradient(135deg, ${primaryActionColor} 0%, ${primaryActionColor}dd 100%)`;
+      });
+
+      const submitButton = document.getElementById('submitAnswersBtn');
+      if (submitButton) {
+        submitButton.style.background = `linear-gradient(135deg, ${secondaryActionColor} 0%, ${secondaryActionColor}dd 100%)`;
+      }
+
+      const tableHeaders = document.querySelectorAll('.answers-table th');
+      tableHeaders.forEach(th => {
+        th.style.background = `linear-gradient(135deg, ${primaryActionColor} 0%, ${primaryActionColor}dd 100%)`;
+        th.style.fontSize = `${baseSize * 0.9}px`;
+        th.style.fontFamily = `${customFont}, ${baseFontStack}`;
+      });
+
+      const tableInputs = document.querySelectorAll('.answers-table input');
+      tableInputs.forEach(inp => {
+        inp.style.fontSize = `${baseSize * 0.9}px`;
+        inp.style.fontFamily = `${customFont}, ${baseFontStack}`;
+      });
+
+      const playerItems = document.querySelectorAll('.player-item');
+      playerItems.forEach(item => {
+        item.style.fontSize = `${baseSize}px`;
+        item.style.fontFamily = `${customFont}, ${baseFontStack}`;
+      });
+
+      document.getElementById('gameTitle').textContent = config.game_title || defaultConfig.game_title;
+      document.getElementById('loginInstructions').textContent = config.login_instructions || defaultConfig.login_instructions;
+      document.getElementById('createRoomBtn').textContent = config.create_room_text || defaultConfig.create_room_text;
+      document.getElementById('joinRoomBtn').textContent = config.join_room_text || defaultConfig.join_room_text;
+      document.getElementById('submitAnswersBtn').textContent = config.submit_answers_text || defaultConfig.submit_answers_text;
+    }
+
+    function mapToCapabilities(config) {
+      return {
+        recolorables: [
+          {
+            get: () => config.background_color || defaultConfig.background_color,
+            set: (value) => {
+              if (window.elementSdk) {
+                window.elementSdk.setConfig({ background_color: value });
+              }
+            }
+          },
+          {
+            get: () => config.surface_color || defaultConfig.surface_color,
+            set: (value) => {
+              if (window.elementSdk) {
+                window.elementSdk.setConfig({ surface_color: value });
+              }
+            }
+          },
+          {
+            get: () => config.text_color || defaultConfig.text_color,
+            set: (value) => {
+              if (window.elementSdk) {
+                window.elementSdk.setConfig({ text_color: value });
+              }
+            }
+          },
+          {
+            get: () => config.primary_action_color || defaultConfig.primary_action_color,
+            set: (value) => {
+              if (window.elementSdk) {
+                window.elementSdk.setConfig({ primary_action_color: value });
+              }
+            }
+          },
+          {
+            get: () => config.secondary_action_color || defaultConfig.secondary_action_color,
+            set: (value) => {
+              if (window.elementSdk) {
+                window.elementSdk.setConfig({ secondary_action_color: value });
+              }
+            }
+          }
+        ],
+        borderables: [],
+        fontEditable: {
+          get: () => config.font_family || defaultConfig.font_family,
+          set: (value) => {
+            if (window.elementSdk) {
+              window.elementSdk.setConfig({ font_family: value });
+            }
+          }
+        },
+        fontSizeable: {
+          get: () => config.font_size || defaultConfig.font_size,
+          set: (value) => {
+            if (window.elementSdk) {
+              window.elementSdk.setConfig({ font_size: value });
+            }
+          }
+        }
+      };
+    }
+
+    function mapToEditPanelValues(config) {
+      return new Map([
+        ["game_title", config.game_title || defaultConfig.game_title],
+        ["login_instructions", config.login_instructions || defaultConfig.login_instructions],
+        ["create_room_text", config.create_room_text || defaultConfig.create_room_text],
+        ["join_room_text", config.join_room_text || defaultConfig.join_room_text],
+        ["submit_answers_text", config.submit_answers_text || defaultConfig.submit_answers_text]
+      ]);
+    }
+
+    if (window.elementSdk) {
+      window.elementSdk.init({
+        defaultConfig,
+        onConfigChange,
+        mapToCapabilities,
+        mapToEditPanelValues
+      });
+    }
+
+    const loginPage = document.getElementById('loginPage');
+    const gameRoom = document.getElementById('gameRoom');
+    const createRoomBtn = document.getElementById('createRoomBtn');
+    const joinRoomBtn = document.getElementById('joinRoomBtn');
+    const playerNameInput = document.getElementById('playerName');
+    const roomCodeInput = document.getElementById('roomCode');
+    const displayRoomCode = document.getElementById('displayRoomCode');
+    const currentUserName = document.getElementById('currentUserName');
+    const userRole = document.getElementById('userRole');
+    const chooseLetterBtn = document.getElementById('chooseLetterBtn');
+    const letterInput = document.getElementById('letterInput');
+    const submitAnswersBtn = document.getElementById('submitAnswersBtn');
+    const startGameBtn = document.getElementById('startGameBtn');
+    const letterDisplay = document.getElementById('letterDisplay');
+    const chosenLetter = document.getElementById('chosenLetter');
+    const timerDisplay = document.getElementById('timerDisplay');
+    const letterInputGroup = document.getElementById('letterInputGroup');
+    const answersTable = document.querySelector('.answers-table');
+    
+    let timerInterval = null;
+    let selectedLetter = '';
+
+    createRoomBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      const name = playerNameInput.value.trim();
+      if (!name) {
+        showMessage('Please enter your name');
+        return;
+      }
+      const roomCode = Math.floor(100000 + Math.random() * 900000);
+      currentUserName.textContent = name;
+      userRole.textContent = 'Host';
+      displayRoomCode.textContent = `Room: ${roomCode}`;
+      loginPage.classList.add('hidden');
+      gameRoom.classList.remove('hidden');
+    });
+
+    joinRoomBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      const name = playerNameInput.value.trim();
+      const code = roomCodeInput.value.trim();
+      if (!name || !code) {
+        showMessage('Please enter your name and room code');
+        return;
+      }
+      currentUserName.textContent = name;
+      userRole.textContent = 'Player';
+      displayRoomCode.textContent = `Room: ${code}`;
+      loginPage.classList.add('hidden');
+      gameRoom.classList.remove('hidden');
+    });
+
+    chooseLetterBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      const letter = letterInput.value.trim().toUpperCase();
+      if (!letter || letter.length !== 1 || !letter.match(/[A-Z]/)) {
+        showMessage('Please enter a valid letter (A-Z)');
+        return;
+      }
+      
+      selectedLetter = letter;
+      chosenLetter.textContent = letter;
+      
+      letterInputGroup.classList.add('hidden');
+      chooseLetterBtn.classList.add('hidden');
+      startGameBtn.classList.remove('hidden');
+      letterDisplay.classList.remove('hidden');
+      
+      showMessage(`Letter "${letter}" has been chosen! Click Start Game to begin.`);
+    });
+
+    startGameBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      startGameBtn.classList.add('hidden');
+      
+      let timeLeft = 300;
+      
+      const updateTimer = () => {
+        const minutes = Math.floor(timeLeft / 60);
+        const seconds = timeLeft % 60;
+        timerDisplay.textContent = `⏱️ ${minutes}:${seconds.toString().padStart(2, '0')}`;
+        
+        if (timeLeft <= 60) {
+          timerDisplay.classList.add('warning');
+        }
+        
+        if (timeLeft <= 0) {
+          clearInterval(timerInterval);
+          endGame();
+        }
+        
+        timeLeft--;
+      };
+      
+      updateTimer();
+      timerInterval = setInterval(updateTimer, 1000);
+      
+      showMessage('Game started! You have 5 minutes to fill all categories.');
+    });
+
+    function endGame() {
+      answersTable.classList.add('disabled');
+      submitAnswersBtn.disabled = true;
+      submitAnswersBtn.style.opacity = '0.5';
+      submitAnswersBtn.style.cursor = 'not-allowed';
+      
+      const allInputs = answersTable.querySelectorAll('input');
+      allInputs.forEach(input => {
+        input.disabled = true;
+      });
+      
+      showMessage('Time is up! Click "Choose Letter" to start a new round.');
+      
+      setTimeout(() => {
+        resetGame();
+      }, 3000);
+    }
+
+    function resetGame() {
+      answersTable.classList.remove('disabled');
+      submitAnswersBtn.disabled = false;
+      submitAnswersBtn.style.opacity = '1';
+      submitAnswersBtn.style.cursor = 'pointer';
+      
+      const allInputs = answersTable.querySelectorAll('input');
+      allInputs.forEach(input => {
+        input.disabled = false;
+        input.value = '';
+      });
+      
+      letterDisplay.classList.add('hidden');
+      letterInputGroup.classList.remove('hidden');
+      chooseLetterBtn.classList.remove('hidden');
+      letterInput.value = '';
+      timerDisplay.classList.remove('warning');
+      
+      if (timerInterval) {
+        clearInterval(timerInterval);
+        timerInterval = null;
+      }
+    }
+
+    submitAnswersBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      const answers = {
+        women: document.getElementById('women').value.trim(),
+        men: document.getElementById('men').value.trim(),
+        flower: document.getElementById('flower').value.trim(),
+        fruit: document.getElementById('fruit').value.trim(),
+        animal: document.getElementById('animal').value.trim(),
+        city: document.getElementById('city').value.trim()
+      };
+      
+      const filledCount = Object.values(answers).filter(a => a).length;
+      showMessage(`Answers submitted! You filled ${filledCount} out of 6 categories.`);
+      
+      if (timerInterval) {
+        clearInterval(timerInterval);
+      }
+      
+      setTimeout(() => {
+        resetGame();
+      }, 2000);
+    });
+
+    function showMessage(msg) {
+      const existingToast = document.querySelector('.toast-message');
+      if (existingToast) {
+        existingToast.remove();
+      }
+
+      const toast = document.createElement('div');
+      toast.className = 'toast-message';
+      toast.textContent = msg;
+      toast.style.cssText = `
+        position: fixed;
+        top: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: rgba(255, 255, 255, 0.95);
+        color: #333;
+        padding: 1rem 2rem;
+        border-radius: 12px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        z-index: 1000;
+        font-weight: 500;
+        animation: slideDown 0.3s ease;
+      `;
+      
+      document.body.appendChild(toast);
+      
+      setTimeout(() => {
+        toast.style.animation = 'slideUp 0.3s ease';
+        setTimeout(() => toast.remove(), 300);
+      }, 3000);
+    }
+
+    const style = document.createElement('style');
+    style.textContent = `
+      @keyframes slideDown {
+        from { transform: translateX(-50%) translateY(-100%); opacity: 0; }
+        to { transform: translateX(-50%) translateY(0); opacity: 1; }
+      }
+      @keyframes slideUp {
+        from { transform: translateX(-50%) translateY(0); opacity: 1; }
+        to { transform: translateX(-50%) translateY(-100%); opacity: 0; }
+      }
+    `;
+    document.head.appendChild(style);
+  </script>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9a8e15706015fd15',t:'MTc2NDg4MDQ1OC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
