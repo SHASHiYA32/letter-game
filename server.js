@@ -1,20 +1,20 @@
-import express from "express";
-import http from "http";
-import { Server } from "socket.io";
+const express = require("express");
+const http = require("http");
+const { Server } = require("socket.io");
+const path = require("path");
 
 const app = express();
 const server = http.createServer(app);
 const io = new Server(server);
 
-app.use(express.static("public"));
+// Serve static files
+app.use(express.static(path.join(__dirname, "public")));
 
-// const PORT = 3000;
-
-// Rooms structure: { roomCode: { players: [], hostId, pickerIndex, currentLetter, answers, state } }
 const rooms = {};
 
+// Generate 6-digit room code
 function generateRoomCode() {
-  return Math.floor(100000 + Math.random() * 900000).toString(); // 6-digit
+  return Math.floor(100000 + Math.random() * 900000).toString();
 }
 
 io.on("connection", (socket) => {
@@ -28,10 +28,11 @@ io.on("connection", (socket) => {
       pickerIndex: 0,
       currentLetter: null,
       answers: {},
-      state: "lobby", // "lobby" | "choosingLetter" | "answering" | "results"
+      state: "lobby",
     };
 
     socket.join(roomCode);
+
     const player = { id: socket.id, name: playerName, score: 0 };
     rooms[roomCode].players.push(player);
 
@@ -41,10 +42,7 @@ io.on("connection", (socket) => {
 
   socket.on("joinRoom", (roomCode, playerName, callback) => {
     const room = rooms[roomCode];
-    if (!room) {
-      callback({ error: "Room not found" });
-      return;
-    }
+    if (!room) return callback({ error: "Room not found" });
 
     socket.join(roomCode);
     const player = { id: socket.id, name: playerName, score: 0 };
@@ -71,15 +69,12 @@ io.on("connection", (socket) => {
     });
   });
 
-  // Player whose turn it is chooses the letter
   socket.on("chooseLetter", (roomCode, letter) => {
     const room = rooms[roomCode];
     if (!room) return;
 
     const picker = room.players[room.pickerIndex];
-    if (!picker || picker.id !== socket.id) {
-      return; // Not your turn
-    }
+    if (!picker || picker.id !== socket.id) return;
 
     room.currentLetter = letter.toUpperCase();
     room.state = "answering";
@@ -90,19 +85,17 @@ io.on("connection", (socket) => {
     });
   });
 
-  // Player submits their row of answers
   socket.on("submitAnswers", (roomCode, answers) => {
     const room = rooms[roomCode];
     if (!room || room.state !== "answering") return;
 
     room.answers[socket.id] = answers;
 
-    // If all players have submitted, calculate scores
     if (Object.keys(room.answers).length === room.players.length) {
       room.state = "results";
 
       const result = calculateScores(room);
-      // Update scores in room
+
       result.forEach((r) => {
         const p = room.players.find((pl) => pl.id === r.id);
         if (p) p.score += r.roundScore;
@@ -115,7 +108,6 @@ io.on("connection", (socket) => {
     }
   });
 
-  // Move to next round (host calls this, or auto later)
   socket.on("nextRound", (roomCode) => {
     const room = rooms[roomCode];
     if (!room) return;
@@ -136,30 +128,26 @@ io.on("connection", (socket) => {
   socket.on("disconnect", () => {
     console.log("User disconnected:", socket.id);
 
-    // Remove from all rooms
     for (const [roomCode, room] of Object.entries(rooms)) {
       const index = room.players.findIndex((p) => p.id === socket.id);
       if (index !== -1) {
         room.players.splice(index, 1);
         io.to(roomCode).emit("playersUpdated", room.players);
 
-        // If room empty -> delete
         if (room.players.length === 0) {
           delete rooms[roomCode];
-        } else {
-          // Fix pickerIndex if needed
-          if (room.pickerIndex >= room.players.length) {
-            room.pickerIndex = 0;
-          }
+        } else if (room.pickerIndex >= room.players.length) {
+          room.pickerIndex = 0;
         }
       }
     }
   });
 });
 
-// Scoring: unique answer -> 10, duplicate (non-empty) -> 5, empty/invalid -> 0
+// Score calculator
 function calculateScores(room) {
   const categories = ["women", "men", "flower", "fruit", "animal", "city"];
+
   const results = room.players.map((p) => ({
     id: p.id,
     name: p.name,
@@ -168,51 +156,38 @@ function calculateScores(room) {
   }));
 
   categories.forEach((cat) => {
-    // Collect all answers for this category
     const values = results.map((r) => ({
       id: r.id,
       value: (r.answers[cat] || "").trim().toLowerCase(),
     }));
 
-    // Count frequencies
     const freq = {};
     values.forEach((v) => {
       if (!v.value) return;
       freq[v.value] = (freq[v.value] || 0) + 1;
     });
 
-    // Score
     values.forEach((v) => {
       if (!v.value) return;
+
       const playerResult = results.find((r) => r.id === v.id);
       if (!playerResult) return;
 
-      if (freq[v.value] === 1) {
-        playerResult.roundScore += 10;
-      } else {
-        playerResult.roundScore += 5;
-      }
+      if (freq[v.value] === 1) playerResult.roundScore += 10;
+      else playerResult.roundScore += 5;
     });
   });
 
   return results;
 }
 
-// server.listen(PORT, () => {
-//   console.log(`Server running on http://localhost:${PORT}`);
-// });
-
-const PORT = process.env.PORT || 3000;
-server.listen(PORT, () => {
-  console.log("Server running on port", PORT);
-});
-
-const express = require("express");
-const path = require("path");
-
-app.use(express.static(path.join(__dirname, "public")));
-
+// Serve index.html
 app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "index.html"));
 });
 
+// Start server
+const PORT = process.env.PORT || 3000;
+server.listen(PORT, () => {
+  console.log("Server running on port", PORT);
+});
