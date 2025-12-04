@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 {
     "name": "letter-catogory-game",
     "version": "1.0.0",
@@ -11,18 +10,4 @@
         "express": "^4.18.2",
         "socket.io": "^4.8.1"
     }
-=======
-{
-    "name": "letter-catogory-game",
-    "version": "1.0.0",
-    "main": "server.js",
-    "type": "module",
-    "scripts": {
-        "start": "node server.js"
-    },
-    "dependencies": {
-        "express": "^4.18.2",
-        "socket.io": "^4.8.1"
-    }
->>>>>>> 112d2dcbaf97f9d300a522a265234ca412303bce
 }
