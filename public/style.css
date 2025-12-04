@@ -1,0 +1,146 @@
+/* Reset & basic */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Poppins', sans-serif;
+}
+
+body {
+  background: linear-gradient(135deg, #fceabb, #f8b500);
+  color: #333;
+}
+
+.container {
+  display: flex;
+  flex-direction: row;
+  min-height: 100vh;
+}
+
+/* Sidebar */
+.players-list {
+  width: 220px;
+  background: rgba(255,255,255,0.2);
+  padding: 20px;
+  backdrop-filter: blur(10px);
+  border-right: 2px solid rgba(255,255,255,0.3);
+}
+
+.players-list h2 {
+  margin-bottom: 10px;
+  color: #fff;
+  text-align: center;
+}
+
+.players-list ul {
+  list-style: none;
+}
+
+.players-list li {
+  margin: 5px 0;
+  padding: 5px 10px;
+  background: rgba(255,255,255,0.4);
+  border-radius: 8px;
+  text-align: center;
+  font-weight: 600;
+}
+
+/* Main */
+main {
+  flex: 1;
+  padding: 20px;
+}
+
+/* Header */
+header {
+  position: fixed;
+  top: 0;
+  left: 220px;
+  width: calc(100% - 220px);
+  padding: 20px;
+  background: rgba(255,255,255,0.3);
+  backdrop-filter: blur(10px);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 2px solid rgba(255,255,255,0.3);
+  z-index: 10;
+}
+
+header h1 {
+  font-family: 'Fredoka One', sans-serif;
+  font-size: 2rem;
+  color: #fff;
+}
+
+.current-letter {
+  font-size: 2rem;
+  font-weight: bold;
+  color: #fff;
+  background: rgba(0,0,0,0.2);
+  padding: 10px 20px;
+  border-radius: 50%;
+}
+
+/* Table */
+table {
+  width: 100%;
+  margin-top: 100px; /* for header */
+  border-collapse: collapse;
+  background: rgba(255,255,255,0.8);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+}
+
+th, td {
+  padding: 12px;
+  text-align: center;
+}
+
+th {
+  background: #f8b500;
+  color: #fff;
+  font-size: 1.1rem;
+}
+
+td input {
+  width: 90%;
+  padding: 6px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  text-align: center;
+}
+
+/* Buttons */
+.buttons {
+  margin-top: 20px;
+  display: flex;
+  gap: 15px;
+}
+
+button {
+  padding: 10px 20px;
+  background: #ff8c42;
+  border: none;
+  border-radius: 12px;
+  color: #fff;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+button:hover {
+  background: #ff6b00;
+}
+
+/* Notifications */
+#notifications {
+  margin-top: 20px;
+  font-weight: 600;
+  font-size: 1.1rem;
+  color: #fff;
+}
+
+
