@@ -2,27 +2,48 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Letter Game</title>
-  <link rel="stylesheet" href="style.css" />
+  <title>Letter Category Game</title>
+  <script src="/socket.io/socket.io.js"></script>
+  <script defer src="client.js"></script>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; }
+    .hidden { display: none; }
+    table, th, td { border: 1px solid #ccc; border-collapse: collapse; padding: 6px; }
+  </style>
 </head>
 <body>
-  <div class="container">
-    <header>
-      <h1>Letter Game</h1>
-      <div class="current-letter">A</div>
-    </header>
+  <h1>Letter Category Game</h1>
 
-    <aside class="players-list">
-      <h2>Players</h2>
-      <ul id="players">
-        <!-- JS will populate player list -->
-      </ul>
-    </aside>
+  <div id="auth">
+    <input id="playerName" placeholder="Your name" />
+    <button id="createRoomBtn">Create Room</button>
+    <input id="joinRoomCode" placeholder="Room code" />
+    <button id="joinRoomBtn">Join Room</button>
+  </div>
 
-    <main>
-      <table>
-        <thead>
+  <div id="room" class="hidden">
+    <p>Room code: <span id="roomCodeDisplay"></span></p>
+    <p>You are: <span id="playerNameDisplay"></span> <span id="hostTag"></span></p>
+
+    <h3>Players</h3>
+    <ul id="playersList"></ul>
+
+    <button id="startGameBtn" class="hidden">Start Game</button>
+
+    <hr />
+
+    <div id="gameArea" class="hidden">
+      <p><strong>Current picker:</strong> <span id="pickerName"></span></p>
+      <p><strong>Current letter:</strong> <span id="currentLetter"></span></p>
+
+      <div id="pickerControls" class="hidden">
+        <input id="letterInput" maxlength="1" placeholder="Enter letter" />
+        <button id="chooseLetterBtn">Choose Letter</button>
+      </div>
+
+      <div id="answerArea" class="hidden">
+        <h3>Your Answers</h3>
+        <table>
           <tr>
             <th>Women</th>
             <th>Men</th>
@@ -31,29 +52,24 @@
             <th>Animal</th>
             <th>City</th>
           </tr>
-        </thead>
-        <tbody>
           <tr>
-            <td><input type="text" /></td>
-            <td><input type="text" /></td>
-            <td><input type="text" /></td>
-            <td><input type="text" /></td>
-            <td><input type="text" /></td>
-            <td><input type="text" /></td>
+            <td><input id="ansWomen" /></td>
+            <td><input id="ansMen" /></td>
+            <td><input id="ansFlower" /></td>
+            <td><input id="ansFruit" /></td>
+            <td><input id="ansAnimal" /></td>
+            <td><input id="ansCity" /></td>
           </tr>
-        </tbody>
-      </table>
-
-      <div class="buttons">
-        <button id="startBtn">Start Game</button>
-        <button id="submitBtn">Submit Answers</button>
-        <button id="nextRoundBtn">Next Round</button>
+        </table>
+        <button id="submitAnswersBtn">Submit Answers</button>
       </div>
 
-      <div id="notifications"></div>
-    </main>
+      <div id="resultsArea" class="hidden">
+        <h3>Round Results</h3>
+        <pre id="resultsText"></pre>
+        <button id="nextRoundBtn">Next Round</button>
+      </div>
+    </div>
   </div>
-
-  <script src="script.js"></script>
 </body>
 </html>
